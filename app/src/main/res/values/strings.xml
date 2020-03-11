@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">TwichApp</string>
+
+    <!--Nav-drawer-->
+    <string name="nav_home">Home</string>
+    <string name="nav_favorites">Favorites</string>
+
+    <!--Pages-->
+    <string name="page_main">Home</string>
+    <string name="page_streamers">Streamers</string>
+    <string name="page_favorites">Favorites</string>
 </resources>
