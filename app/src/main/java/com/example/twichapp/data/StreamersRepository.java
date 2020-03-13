@@ -38,7 +38,7 @@ public class StreamersRepository implements LoadTwitchTask.AsyncCallback {
             Log.d(TAG, "fetching new twitch streams data with this URL: " + url);
             new LoadTwitchTask(url, this).execute();
         } else {
-            Log.d(TAG, "using cached forecast data");
+            Log.d(TAG, "using cached twitch streams data");
         }
     }
 
