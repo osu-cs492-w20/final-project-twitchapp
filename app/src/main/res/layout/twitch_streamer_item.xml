@@ -10,12 +10,13 @@
         android:gravity="center_vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-    
+
         <ImageView
             android:id="@+id/iv_streamer_thumbnail"
+            android:layout_width="150dp"
+            android:layout_height="85dp"
             android:padding="8dp"
-            android:layout_width="72dp"
-            android:layout_height="72dp" />
+            android:paddingStart="0dp"/>
 
         <LinearLayout
             android:orientation="vertical"
@@ -27,18 +28,38 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="8dp"
+                android:paddingStart="0dp"
                 android:textSize="24sp"
                 android:textColor="#000" />
 
             <TextView
                 android:id="@+id/tv_streamer_title"
+                android:singleLine="true"
+                android:ellipsize="marquee"
+                android:marqueeRepeatLimit ="marquee_forever"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:scrollHorizontally="true"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"/>
 
-            <TextView
-                android:id="@+id/tv_streamer_viewers"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_people"/>
+
+                <TextView
+                    android:id="@+id/tv_streamer_viewers"
+                    android:paddingStart="8dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
 
         </LinearLayout>
 
