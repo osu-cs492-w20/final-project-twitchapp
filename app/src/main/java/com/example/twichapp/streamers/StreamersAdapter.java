@@ -3,6 +3,8 @@ package com.example.twichapp.streamers;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -75,6 +77,14 @@ public class StreamersAdapter extends RecyclerView.Adapter<StreamersAdapter.Stre
         public void bind(TwitchStream twitchStream) {
             mStreamerNameTV.setText(twitchStream.user_name);
             mStreamerTitleTV.setText(twitchStream.title);
+
+            mStreamerTitleTV.setSelected(false);
+            mStreamerTitleTV.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mStreamerTitleTV.setSelected(true);
+                }
+            }, 3000);
             mStreamerViewersTV.setText(Integer.toString(twitchStream.viewer_count));
 
             String thumbnail_url = TwitchUtils.buildIconURL(twitchStream.thumbnail_url);
