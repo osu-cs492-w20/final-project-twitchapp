@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.example.twichapp.stream.StreamActivity;
 import com.google.android.material.navigation.NavigationView;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -64,6 +65,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Intent favoritesIntent = new Intent(this, FavoritesActivity.class);
                 startActivity(favoritesIntent);
                 return true;
+            case R.id.temp_stream:
+                Intent streamIntent = new Intent(this, StreamActivity.class);
+                startActivity(streamIntent);
             default:
                 return false;
         }

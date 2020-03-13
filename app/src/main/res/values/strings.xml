@@ -9,4 +9,5 @@
     <string name="page_main">Home</string>
     <string name="page_streamers">Streamers</string>
     <string name="page_favorites">Favorites</string>
+    <string name="page_stream">Stream</string>
 </resources>

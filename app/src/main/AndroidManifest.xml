@@ -13,6 +13,9 @@
         android:theme="@style/AppTheme.NoActionBar">
         <activity android:name=".FavoritesActivity" />
         <activity android:name=".StreamersActivity" />
+        <activity android:name=".stream.StreamActivity">
+
+        </activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
