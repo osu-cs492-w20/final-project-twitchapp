@@ -19,8 +19,8 @@ public class TwitchUtils {
 
     public static String buildIconURL(String thumbnail) {
         return thumbnail
-                .replace("{width}", "100")
-                .replace("{height}", "100");
+                .replace("{width}", "1280")
+                .replace("{height}", "720");
     }
 
     public static String buildTwitchURL(String game) {
