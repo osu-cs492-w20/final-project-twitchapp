@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.example.twichapp.streamers.StreamersActivity;
 import com.google.android.material.navigation.NavigationView;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -56,9 +57,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mDrawerLayout.closeDrawers();
         switch (item.getItemId()) {
             case R.id.nav_home:
-                // Uncomment this to test Streamers Activity
-//                Intent streamersIntent = new Intent(this, StreamersActivity.class);
-//                startActivity(streamersIntent);
+                return true;
+            case R.id.nav_streamers:
+                Intent streamersIntent = new Intent(this, StreamersActivity.class);
+                startActivity(streamersIntent);
                 return true;
             case R.id.nav_favorites:
                 Intent favoritesIntent = new Intent(this, FavoritesActivity.class);
