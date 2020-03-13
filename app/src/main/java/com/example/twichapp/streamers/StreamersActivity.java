@@ -102,13 +102,7 @@ public class StreamersActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nv_nav_drawer_streamers);
         navigationView.setNavigationItemSelectedListener(this);
 
-        Button button = findViewById(R.id.btn_test);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mStreamersViewModel.loadStreams("");
-            }
-        });
+        mStreamersViewModel.loadStreams("");
     }
 
     @Override
@@ -129,6 +123,8 @@ public class StreamersActivity extends AppCompatActivity
             case R.id.nav_home:
                 Intent homeIntent = new Intent(this, MainActivity.class);
                 startActivity(homeIntent);
+                return true;
+            case R.id.nav_streamers:
                 return true;
             case R.id.nav_favorites:
                 Intent favoritesIntent = new Intent(this, FavoritesActivity.class);
