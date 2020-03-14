@@ -1,16 +1,23 @@
 package com.example.twichapp.stream;
 
 import android.content.Intent;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Display;
 import android.view.MenuItem;
+import android.view.ViewTreeObserver;
+import android.view.Window;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.LinearLayout;
 import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.VideoView;
@@ -31,8 +38,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 public class StreamActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = MainActivity.class.getSimpleName();
     private DrawerLayout mDrawerLayout;
-    private VideoView mVideoView;
-    private TextView mBufferingTextView;
+    private LinearLayout mlinearLayout;
+    WebView mWebView;
     private double mWidth;
     private double mHeight;
 
@@ -59,36 +66,54 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
         NavigationView navigationView = findViewById(R.id.nv_nav_drawer_stream);
         navigationView.setNavigationItemSelectedListener(this);
 
-        // get the width of the users screen to set the width of the video
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        double ppi = Math.sqrt(Math.pow(displayMetrics.widthPixels, 2) + Math.pow(displayMetrics.heightPixels, 2));
-        mWidth = (displayMetrics.widthPixels / ppi) * displayMetrics.densityDpi;
-        mHeight = (displayMetrics.heightPixels / ppi) * displayMetrics.densityDpi;
-    //
-//        mBufferingTextView = findViewById(R.id.buffering_textview);
-//        mVideoView = (VideoView)findViewById(R.id.vv_video_view_stream);
-//        MediaController mediaController = new MediaController(this);
-//        mediaController.setMediaPlayer(mVideoView);
-//        mVideoView.setMediaController(mediaController);
-    }
+        // This is because the height and width take time to lad and those
+        // values are needed to build the webview so we must wait tell
+        // they load and then we can initialize the stream
+        mlinearLayout = findViewById(R.id.linear_layout_stream);
+        ViewTreeObserver viewTreeObserver = mlinearLayout.getViewTreeObserver();
+        if (viewTreeObserver.isAlive()) {
+            viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    int viewHeight = mlinearLayout.getHeight();
+                    if (viewHeight != 0) {
+                        mlinearLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        String CHANNEL = "thewaifuwaluigi";
-        String url = "http://player.twitch.tv/?channel=" + CHANNEL;
-        initializePlayer(CHANNEL);
+                        String CHANNEL = "rendogtv";
+                        initializePlayer(CHANNEL);
+                    }
+                }
+            });
+        }
     }
 
     private void initializePlayer(String channel) {
+        // get the height of the action bar so we can account
+        // for it when making the height of the stream
+        TypedValue tv = new TypedValue();
+        getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true);
+        int actionBarHeight = getResources().getDimensionPixelSize(tv.resourceId);
+
+        // get the demintions of the viewable window
+        // this is the width and height minus the status
+        // and nav bar
+        int height = mlinearLayout.getHeight();
+        int width = mlinearLayout.getWidth();
+
+        // here we get the display metrics because we need
+        // the density to convert from pixels to dots
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+
+        // here we convert to dps
+        mWidth = width / displayMetrics.density;
+        mHeight = ((height - actionBarHeight) / displayMetrics.density);
+
+        // this is the html for the stream
         String streamHTML =
                 "<html> " +
-                    "<body> " +
-                    "<!-- Add a placeholder for the Twitch embed --> " +
+                    "<body style=\"margin: 0; padding: 0\"> " +
                         "<div id=\"twitch-embed\"></div> " +
-                        "<!-- Load the Twitch embed script --> " +
                         "<script src=\"https://embed.twitch.tv/embed/v1.js\"></script> " +
                         "<!-- Create a Twitch.Embed object that will render within the \"twitch-embed\" root element. --> " +
                         "<script type=\"text/javascript\"> " +
@@ -96,38 +121,15 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
                                 "width: " + mWidth + "," +
                                 "height: " + mHeight + "," +
                                 "channel: \"" + channel + "\"," +
-//                                "layout: \"video\"" +
                             "}); " +
                     "</script> " +
                     "</body>" +
                 "</html>";
 
-        WebView mWebView;
+        // load the stream in web view
         mWebView = (WebView) findViewById(R.id.webview1);
         mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.loadData(streamHTML, "text/html", null);
-//        mWebView.setWebViewClient(new WebViewClient());
-//        mWebView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
-////        mWebView.getSettings().setPluginState(WebSettings.PluginState.ON);
-//        mWebView.getSettings().setMediaPlaybackRequiresUserGesture(false);
-//        mWebView.setWebChromeClient(new WebChromeClient());
-//        mWebView.loadUrl(url);
-
-//
-//        mBufferingTextView.setVisibility(VideoView.VISIBLE);
-//
-//        Uri uri = Uri.parse(url);
-//        mVideoView.setVideoURI(uri);
-//
-//        mVideoView.setOnPreparedListener(
-//                new MediaPlayer.OnPreparedListener() {
-//                    @Override
-//                    public void onPrepared(MediaPlayer mediaPlayer) {
-//                        mBufferingTextView.setVisibility(VideoView.INVISIBLE);
-//                        mVideoView.start();
-//                    }
-//                }
-//        );
     }
 
     @Override
