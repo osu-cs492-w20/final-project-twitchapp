@@ -1,10 +1,17 @@
 package com.example.twichapp.stream;
 
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MenuItem;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.VideoView;
 
@@ -25,6 +32,9 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
     private static final String TAG = MainActivity.class.getSimpleName();
     private DrawerLayout mDrawerLayout;
     private VideoView mVideoView;
+    private TextView mBufferingTextView;
+    private double mWidth;
+    private double mHeight;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,16 +59,75 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
         NavigationView navigationView = findViewById(R.id.nv_nav_drawer_stream);
         navigationView.setNavigationItemSelectedListener(this);
 
-        mVideoView = (VideoView)findViewById(R.id.vv_video_view_stream);
-
-        playVideo("https://www.youtube.com/watch?time_continue=418&v=SrPHLj_q_OQ&feature=emb_logo");
+        // get the width of the users screen to set the width of the video
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        double ppi = Math.sqrt(Math.pow(displayMetrics.widthPixels, 2) + Math.pow(displayMetrics.heightPixels, 2));
+        mWidth = (displayMetrics.widthPixels / ppi) * displayMetrics.densityDpi;
+        mHeight = (displayMetrics.heightPixels / ppi) * displayMetrics.densityDpi;
+    //
+//        mBufferingTextView = findViewById(R.id.buffering_textview);
+//        mVideoView = (VideoView)findViewById(R.id.vv_video_view_stream);
+//        MediaController mediaController = new MediaController(this);
+//        mediaController.setMediaPlayer(mVideoView);
+//        mVideoView.setMediaController(mediaController);
     }
 
-    private void playVideo(String url) {
-        Log.d(TAG, "YEET?");
-        Uri uri = Uri.parse(url);
-        mVideoView.setVideoURI(uri);
-        mVideoView.start();
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        String CHANNEL = "thewaifuwaluigi";
+        String url = "http://player.twitch.tv/?channel=" + CHANNEL;
+        initializePlayer(CHANNEL);
+    }
+
+    private void initializePlayer(String channel) {
+        String streamHTML =
+                "<html> " +
+                    "<body> " +
+                    "<!-- Add a placeholder for the Twitch embed --> " +
+                        "<div id=\"twitch-embed\"></div> " +
+                        "<!-- Load the Twitch embed script --> " +
+                        "<script src=\"https://embed.twitch.tv/embed/v1.js\"></script> " +
+                        "<!-- Create a Twitch.Embed object that will render within the \"twitch-embed\" root element. --> " +
+                        "<script type=\"text/javascript\"> " +
+                            "new Twitch.Embed(\"twitch-embed\", { " +
+                                "width: " + mWidth + "," +
+                                "height: " + mHeight + "," +
+                                "channel: \"" + channel + "\"," +
+//                                "layout: \"video\"" +
+                            "}); " +
+                    "</script> " +
+                    "</body>" +
+                "</html>";
+
+        WebView mWebView;
+        mWebView = (WebView) findViewById(R.id.webview1);
+        mWebView.getSettings().setJavaScriptEnabled(true);
+        mWebView.loadData(streamHTML, "text/html", null);
+//        mWebView.setWebViewClient(new WebViewClient());
+//        mWebView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
+////        mWebView.getSettings().setPluginState(WebSettings.PluginState.ON);
+//        mWebView.getSettings().setMediaPlaybackRequiresUserGesture(false);
+//        mWebView.setWebChromeClient(new WebChromeClient());
+//        mWebView.loadUrl(url);
+
+//
+//        mBufferingTextView.setVisibility(VideoView.VISIBLE);
+//
+//        Uri uri = Uri.parse(url);
+//        mVideoView.setVideoURI(uri);
+//
+//        mVideoView.setOnPreparedListener(
+//                new MediaPlayer.OnPreparedListener() {
+//                    @Override
+//                    public void onPrepared(MediaPlayer mediaPlayer) {
+//                        mBufferingTextView.setVisibility(VideoView.INVISIBLE);
+//                        mVideoView.start();
+//                    }
+//                }
+//        );
     }
 
     @Override
