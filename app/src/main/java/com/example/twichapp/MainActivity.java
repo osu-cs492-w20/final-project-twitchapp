@@ -67,6 +67,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return true;
             case R.id.temp_stream:
                 Intent streamIntent = new Intent(this, StreamActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("channel_name",  "rendogtv");
+                streamIntent.putExtras(bundle);
                 startActivity(streamIntent);
             default:
                 return false;

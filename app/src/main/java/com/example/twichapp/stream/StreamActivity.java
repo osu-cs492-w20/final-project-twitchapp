@@ -10,6 +10,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewTreeObserver;
 import android.view.Window;
@@ -39,13 +40,19 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
     private static final String TAG = MainActivity.class.getSimpleName();
     private DrawerLayout mDrawerLayout;
     private LinearLayout mlinearLayout;
-    WebView mWebView;
+    private WebView mWebView;
     private double mWidth;
     private double mHeight;
+
+    private String mChannel;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // you can use bundle to pass in the stream channel
+        Bundle bundle = getIntent().getExtras();
+        mChannel = bundle.getString("channel_name");
 
         setContentView(R.layout.activity_stream);
 
@@ -58,13 +65,14 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
 
         // The following 3 lines change the default toolbar title to a given string
         TextView textView = toolbar.findViewById(R.id.toolbar_tv_stream);
-        textView.setText(getString(R.string.page_stream));
+        textView.setText(mChannel);
         actionBar.setDisplayShowTitleEnabled(false);
 
         mDrawerLayout = findViewById(R.id.drawer_layout_stream);
 
         NavigationView navigationView = findViewById(R.id.nv_nav_drawer_stream);
         navigationView.setNavigationItemSelectedListener(this);
+
 
         // This is because the height and width take time to lad and those
         // values are needed to build the webview so we must wait tell
@@ -79,15 +87,22 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
                     if (viewHeight != 0) {
                         mlinearLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
-                        String CHANNEL = "rendogtv";
-                        initializePlayer(CHANNEL);
+                        initializePlayer();
                     }
                 }
             });
         }
     }
 
-    private void initializePlayer(String channel) {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.stream_menu, menu);
+        return true;
+    }
+
+
+
+    private void initializePlayer() {
         // get the height of the action bar so we can account
         // for it when making the height of the stream
         TypedValue tv = new TypedValue();
@@ -120,7 +135,7 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
                             "new Twitch.Embed(\"twitch-embed\", { " +
                                 "width: " + mWidth + "," +
                                 "height: " + mHeight + "," +
-                                "channel: \"" + channel + "\"," +
+                                "channel: \"" + mChannel + "\"," +
                             "}); " +
                     "</script> " +
                     "</body>" +
@@ -138,8 +153,26 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
             case android.R.id.home:
                 mDrawerLayout.openDrawer(GravityCompat.START);
                 return true;
+            case R.id.action_favorite:
+                return true;
+            case R.id.action_share:
+                shareStream();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void shareStream() {
+        if (mChannel != null) {
+            String shareText = "Check out this stream from " + mChannel + ": https://www.twitch.tv/" + mChannel;
+
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.putExtra(Intent.EXTRA_TEXT, shareText);
+            shareIntent.setType("text/plain");
+
+            Intent chooserIntent = Intent.createChooser(shareIntent, null);
+            startActivity(chooserIntent);
         }
     }
 
