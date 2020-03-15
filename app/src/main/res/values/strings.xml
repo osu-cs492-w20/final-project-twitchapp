@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">TwichApp</string>
+    <string name="app_name">Twich App</string>
 
     <string name="loading_error_message">Woops.  We couldn\'t load your streams.</string>
 
