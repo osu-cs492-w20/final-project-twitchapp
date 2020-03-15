@@ -136,6 +136,7 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
                                 "width: " + mWidth + "," +
                                 "height: " + mHeight + "," +
                                 "channel: \"" + mChannel + "\"," +
+                                "allowfullscreen: \"true\"" +
                             "}); " +
                     "</script> " +
                     "</body>" +
