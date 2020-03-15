@@ -18,12 +18,10 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-
+import com.example.twichapp.stream.StreamActivity;
 import com.example.twichapp.data.Status;
 import com.example.twichapp.data.TwitchGame;
-
 import com.example.twichapp.streamers.StreamersActivity;
-
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.List;
