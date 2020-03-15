@@ -26,6 +26,7 @@ import android.widget.VideoView;
 import com.example.twichapp.FavoritesActivity;
 import com.example.twichapp.MainActivity;
 import com.example.twichapp.R;
+import com.example.twichapp.streamers.StreamersActivity;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.annotation.NonNull;
@@ -182,9 +183,8 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
         mDrawerLayout.closeDrawers();
         switch (item.getItemId()) {
             case R.id.nav_home:
-                // Uncomment this to test Streamers Activity
-//                Intent streamersIntent = new Intent(this, StreamersActivity.class);
-//                startActivity(streamersIntent);
+                Intent streamersIntent = new Intent(this, StreamersActivity.class);
+                startActivity(streamersIntent);
                 return true;
             case R.id.nav_favorites:
                 Intent favoritesIntent = new Intent(this, FavoritesActivity.class);

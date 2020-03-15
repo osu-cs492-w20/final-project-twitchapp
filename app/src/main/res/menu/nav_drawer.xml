@@ -8,6 +8,11 @@
         android:icon="@drawable/ic_nav_home" />
 
     <item
+        android:id="@+id/nav_streamers"
+        android:title="@string/nav_streamers"
+        android:icon="@drawable/ic_nav_streamers" />
+
+    <item
         android:id="@+id/nav_favorites"
         android:title="@string/nav_favorites"
         android:icon="@drawable/ic_nav_favorites" />

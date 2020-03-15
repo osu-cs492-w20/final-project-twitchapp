@@ -1,8 +1,11 @@
 <resources>
     <string name="app_name">TwichApp</string>
 
+    <string name="loading_error_message">Woops.  We couldn\'t load your streams.</string>
+
     <!--Nav-drawer-->
     <string name="nav_home">Home</string>
+    <string name="nav_streamers">Streamers</string>
     <string name="nav_favorites">Favorites</string>
 
     <!--Pages-->

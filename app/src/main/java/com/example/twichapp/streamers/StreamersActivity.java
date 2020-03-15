@@ -1,6 +1,7 @@
-package com.example.twichapp;
+package com.example.twichapp.streamers;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -18,30 +19,37 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.twichapp.stream.StreamActivity;
+import com.example.twichapp.FavoritesActivity;
+import com.example.twichapp.MainActivity;
+import com.example.twichapp.R;
 import com.example.twichapp.data.Status;
 import com.example.twichapp.data.TwitchGame;
-import com.example.twichapp.streamers.StreamersActivity;
+import com.example.twichapp.data.TwitchStream;
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, GamesAdapter.OnGameClickListener {
+public class StreamersActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener, StreamersAdapter.OnStreamerClickListener {
+    private static final String TAG = StreamersActivity.class.getSimpleName();
+    public static final String EXTRA_GAME = "";
+
+    private TwitchGame mGame;
+
     private DrawerLayout mDrawerLayout;
-    private RecyclerView mGamesRV;
+    private RecyclerView mStreamersRV;
     private ProgressBar mLoadingIndicatorPB;
     private TextView mLoadingErrorMessageTV;
 
-    private GamesAdapter mGamesAdapter;
-    private GamesViewModel mGamesViewModel;
+    private StreamersAdapter mStreamersAdapter;
+    private StreamersViewModel mStreamersViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_streamers);
 
-        Toolbar toolbar = findViewById(R.id.toolbar_main);
+        Toolbar toolbar = findViewById(R.id.toolbar_streamers);
         setSupportActionBar(toolbar);
 
         ActionBar actionBar = getSupportActionBar();
@@ -49,54 +57,63 @@ public class MainActivity extends AppCompatActivity
         actionBar.setHomeAsUpIndicator(R.drawable.ic_nav_menu);
 
         // The following 3 lines change the default toolbar title to a given string
-        TextView textView = toolbar.findViewById(R.id.toolbar_tv_main);
-        textView.setText(getString(R.string.page_main));
+        TextView textView = toolbar.findViewById(R.id.toolbar_tv_streamers);
+        textView.setText(getString(R.string.page_streamers));
         actionBar.setDisplayShowTitleEnabled(false);
 
         mLoadingIndicatorPB = findViewById(R.id.pb_loading_indicator);
         mLoadingErrorMessageTV = findViewById(R.id.tv_loading_error_message);
-        mGamesRV = findViewById(R.id.rv_twitch_game_items);
+        mStreamersRV = findViewById(R.id.rv_twitch_stream_items);
 
-        mGamesAdapter = new GamesAdapter(this);
-        mGamesRV.setAdapter(mGamesAdapter);
-        mGamesRV.setLayoutManager(new LinearLayoutManager(this));
-        mGamesRV.setHasFixedSize(true);
+        mStreamersAdapter = new StreamersAdapter(this);
+        mStreamersRV.setAdapter(mStreamersAdapter);
+        mStreamersRV.setLayoutManager(new LinearLayoutManager(this));
+        mStreamersRV.setHasFixedSize(true);
 
-        mDrawerLayout = findViewById(R.id.drawer_layout_main);
+        mDrawerLayout = findViewById(R.id.drawer_layout_streamers);
 
-        mGamesViewModel = new ViewModelProvider(this).get(GamesViewModel.class);
+        mStreamersViewModel = new ViewModelProvider(this).get(StreamersViewModel.class);
 
-        mGamesViewModel.getGames().observe(this, new Observer<List<TwitchGame>>() {
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra(EXTRA_GAME)) {
+            mGame = (TwitchGame)intent.getSerializableExtra(EXTRA_GAME);
+        }
+
+        mStreamersViewModel.getStreams().observe(this, new Observer<List<TwitchStream>>() {
             @Override
-            public void onChanged(List<TwitchGame> twitchGames) {
-                mGamesAdapter.updateTwitchGames(twitchGames);
-                if (twitchGames != null) {
-                    mGamesAdapter.updateTwitchGames(twitchGames);
+            public void onChanged(List<TwitchStream> twitchStreams) {
+                mStreamersAdapter.updateTwitchStreams(twitchStreams);
+                if (twitchStreams != null) {
+                    mStreamersAdapter.updateTwitchStreams(twitchStreams);
                 }
             }
         });
 
-        mGamesViewModel.getLoadingStatus().observe(this, new Observer<Status>() {
+        mStreamersViewModel.getLoadingStatus().observe(this, new Observer<Status>() {
             @Override
-            public void onChanged(Status status) {
+            public void onChanged(@Nullable Status status) {
                 if (status == Status.LOADING) {
                     mLoadingIndicatorPB.setVisibility(View.VISIBLE);
                 } else if (status == Status.SUCCESS) {
                     mLoadingIndicatorPB.setVisibility(View.INVISIBLE);
                     mLoadingErrorMessageTV.setVisibility(View.INVISIBLE);
-                    mGamesRV.setVisibility(View.VISIBLE);
+                    mStreamersRV.setVisibility(View.VISIBLE);
                 } else {
                     mLoadingIndicatorPB.setVisibility(View.INVISIBLE);
-                    mGamesRV.setVisibility(View.INVISIBLE);
+                    mStreamersRV.setVisibility(View.INVISIBLE);
                     mLoadingErrorMessageTV.setVisibility(View.VISIBLE);
                 }
             }
         });
 
-        NavigationView navigationView = findViewById(R.id.nv_nav_drawer_main);
+        NavigationView navigationView = findViewById(R.id.nv_nav_drawer_streamers);
         navigationView.setNavigationItemSelectedListener(this);
 
-        mGamesViewModel.loadGames();
+        if (mGame != null) {
+            mStreamersViewModel.loadStreams(mGame.id);
+        } else {
+            mStreamersViewModel.loadStreams("");
+        }
     }
 
     @Override
@@ -115,30 +132,22 @@ public class MainActivity extends AppCompatActivity
         mDrawerLayout.closeDrawers();
         switch (item.getItemId()) {
             case R.id.nav_home:
+                Intent homeIntent = new Intent(this, MainActivity.class);
+                startActivity(homeIntent);
                 return true;
             case R.id.nav_streamers:
-                Intent streamersIntent = new Intent(this, StreamersActivity.class);
-                startActivity(streamersIntent);
                 return true;
             case R.id.nav_favorites:
                 Intent favoritesIntent = new Intent(this, FavoritesActivity.class);
                 startActivity(favoritesIntent);
                 return true;
-            case R.id.temp_stream:
-                Intent streamIntent = new Intent(this, StreamActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putString("channel_name",  "rendogtv");
-                streamIntent.putExtras(bundle);
-                startActivity(streamIntent);
             default:
                 return false;
         }
     }
 
     @Override
-    public void onGameClick(TwitchGame twitchGame){
-        Intent intent = new Intent(this, StreamersActivity.class);
-        intent.putExtra(StreamersActivity.EXTRA_GAME, twitchGame);
-        startActivity(intent);
+    public void onStreamerClick(TwitchStream twitchStream) {
+
     }
 }

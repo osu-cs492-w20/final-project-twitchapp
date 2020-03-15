@@ -13,10 +13,12 @@
         android:theme="@style/AppTheme.NoActionBar"
         android:usesCleartextTraffic="true">
         <activity android:name=".FavoritesActivity" />
-        <activity android:name=".StreamersActivity" />
+
         <activity android:name=".stream.StreamActivity">
 
         </activity>
+        <activity android:name=".streamers.StreamersActivity" />
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
