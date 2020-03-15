@@ -45,7 +45,7 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
     private double mWidth;
     private double mHeight;
 
-    private String mChannel;
+    private String mUserName;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -53,7 +53,7 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
 
         // you can use bundle to pass in the stream channel
         Bundle bundle = getIntent().getExtras();
-        mChannel = bundle.getString("channel_name");
+        mUserName = bundle.getString("user_name");
 
         setContentView(R.layout.activity_stream);
 
@@ -66,7 +66,7 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
 
         // The following 3 lines change the default toolbar title to a given string
         TextView textView = toolbar.findViewById(R.id.toolbar_tv_stream);
-        textView.setText(mChannel);
+        textView.setText(mUserName);
         actionBar.setDisplayShowTitleEnabled(false);
 
         mDrawerLayout = findViewById(R.id.drawer_layout_stream);
@@ -136,7 +136,7 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
                             "new Twitch.Embed(\"twitch-embed\", { " +
                                 "width: " + mWidth + "," +
                                 "height: " + mHeight + "," +
-                                "channel: \"" + mChannel + "\"," +
+                                "channel: \"" + mUserName + "\"," +
                                 "allowfullscreen: \"true\"" +
                             "}); " +
                     "</script> " +
@@ -166,8 +166,8 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
     }
 
     public void shareStream() {
-        if (mChannel != null) {
-            String shareText = "Check out this stream from " + mChannel + ": https://www.twitch.tv/" + mChannel;
+        if (mUserName != null) {
+            String shareText = "Check out this stream from " + mUserName + ": https://www.twitch.tv/" + mUserName;
 
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.putExtra(Intent.EXTRA_TEXT, shareText);

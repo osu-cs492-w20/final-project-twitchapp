@@ -151,7 +151,7 @@ public class StreamersActivity extends AppCompatActivity
     public void onStreamerClick(TwitchStream twitchStream) {
         Intent streamIntent = new Intent(this, StreamActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putString("channel_name",  twitchStream.user_name);
+        bundle.putString("user_name",  twitchStream.user_name);
         streamIntent.putExtras(bundle);
         startActivity(streamIntent);
     }
