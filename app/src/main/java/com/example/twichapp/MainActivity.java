@@ -6,16 +6,33 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.example.twichapp.data.Status;
+import com.example.twichapp.data.TwitchGames;
 import com.google.android.material.navigation.NavigationView;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+import java.util.List;
+
+public class MainActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener, GamesAdapter.OnGameClickListener {
     private DrawerLayout mDrawerLayout;
+    private RecyclerView mGamesRV;
+    private ProgressBar mLoadingIndicatorPB;
+    private TextView mLoadingErrorMessageTV;
+
+    private GamesAdapter mGamesAdapter;
+    private GamesViewModel mGamesViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,10 +51,50 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         textView.setText(getString(R.string.page_main));
         actionBar.setDisplayShowTitleEnabled(false);
 
+        mLoadingIndicatorPB = findViewById(R.id.pb_loading_indicator);
+        mLoadingErrorMessageTV = findViewById(R.id.tv_loading_error_message);
+        mGamesRV = findViewById(R.id.rv_twitch_game_items);
+
+        mGamesAdapter = new GamesAdapter(this);
+        mGamesRV.setAdapter(mGamesAdapter);
+        mGamesRV.setLayoutManager(new LinearLayoutManager(this));
+        mGamesRV.setHasFixedSize(true);
+
         mDrawerLayout = findViewById(R.id.drawer_layout_main);
+
+        mGamesViewModel = new ViewModelProvider(this).get(GamesViewModel.class);
+
+        mGamesViewModel.getGames().observe(this, new Observer<List<TwitchGames>>() {
+            @Override
+            public void onChanged(List<TwitchGames> twitchGames) {
+                mGamesAdapter.updateTwitchGames(twitchGames);
+                if (twitchGames != null) {
+                    mGamesAdapter.updateTwitchGames(twitchGames);
+                }
+            }
+        });
+
+        mGamesViewModel.getLoadingStatus().observe(this, new Observer<Status>() {
+            @Override
+            public void onChanged(Status status) {
+                if (status == Status.LOADING) {
+                    mLoadingIndicatorPB.setVisibility(View.VISIBLE);
+                } else if (status == Status.SUCCESS) {
+                    mLoadingIndicatorPB.setVisibility(View.INVISIBLE);
+                    mLoadingErrorMessageTV.setVisibility(View.INVISIBLE);
+                    mGamesRV.setVisibility(View.VISIBLE);
+                } else {
+                    mLoadingIndicatorPB.setVisibility(View.INVISIBLE);
+                    mGamesRV.setVisibility(View.INVISIBLE);
+                    mLoadingErrorMessageTV.setVisibility(View.VISIBLE);
+                }
+            }
+        });
 
         NavigationView navigationView = findViewById(R.id.nv_nav_drawer_main);
         navigationView.setNavigationItemSelectedListener(this);
+
+        mGamesViewModel.loadGames();
     }
 
     @Override
@@ -67,5 +124,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             default:
                 return false;
         }
+    }
+
+    @Override
+    public void onGameClick(TwitchGames twitchGame){
+
     }
 }
