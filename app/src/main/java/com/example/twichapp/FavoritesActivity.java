@@ -62,9 +62,6 @@ public class FavoritesActivity extends AppCompatActivity implements NavigationVi
                 return true;
             case R.id.nav_favorites:
                 return true;
-            case R.id.temp_stream:
-                Intent streamIntent = new Intent(this, StreamActivity.class);
-                startActivity(streamIntent);
             default:
                 return false;
         }

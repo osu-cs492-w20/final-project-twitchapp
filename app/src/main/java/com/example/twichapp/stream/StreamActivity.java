@@ -190,9 +190,6 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
                 Intent favoritesIntent = new Intent(this, FavoritesActivity.class);
                 startActivity(favoritesIntent);
                 return true;
-            case R.id.temp_stream:
-                Intent streamIntent = new Intent(this, StreamActivity.class);
-                startActivity(streamIntent);
             default:
                 return false;
         }

@@ -25,6 +25,7 @@ import com.example.twichapp.R;
 import com.example.twichapp.data.Status;
 import com.example.twichapp.data.TwitchGame;
 import com.example.twichapp.data.TwitchStream;
+import com.example.twichapp.stream.StreamActivity;
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.List;
@@ -148,6 +149,10 @@ public class StreamersActivity extends AppCompatActivity
 
     @Override
     public void onStreamerClick(TwitchStream twitchStream) {
-
+        Intent streamIntent = new Intent(this, StreamActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putString("channel_name",  twitchStream.user_name);
+        streamIntent.putExtras(bundle);
+        startActivity(streamIntent);
     }
 }

@@ -17,8 +17,4 @@
         android:title="@string/nav_favorites"
         android:icon="@drawable/ic_nav_favorites" />
 
-    <item
-        android:id="@+id/temp_stream"
-        android:title="temp_stream"/>
-
 </menu>
