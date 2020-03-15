@@ -109,7 +109,11 @@ public class StreamersActivity extends AppCompatActivity
         NavigationView navigationView = findViewById(R.id.nv_nav_drawer_streamers);
         navigationView.setNavigationItemSelectedListener(this);
 
-        mStreamersViewModel.loadStreams(mGame.id);
+        if (mGame != null) {
+            mStreamersViewModel.loadStreams(mGame.id);
+        } else {
+            mStreamersViewModel.loadStreams("");
+        }
     }
 
     @Override
