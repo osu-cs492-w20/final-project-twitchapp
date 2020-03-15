@@ -10,25 +10,25 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.twichapp.data.TwitchGames;
+import com.example.twichapp.data.TwitchGame;
 import com.example.twichapp.utils.TwitchUtils;
 
 import java.util.List;
 
 public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GamesViewHolder> {
 
-    private List<TwitchGames> mTwitchGames;
+    private List<TwitchGame> mTwitchGames;
     private OnGameClickListener mGameClickListener;
 
     public interface OnGameClickListener {
-        void onGameClick(TwitchGames twitchStream);
+        void onGameClick(TwitchGame twitchStream);
     }
 
     public GamesAdapter(OnGameClickListener clickListener) {
         mGameClickListener = clickListener;
     }
 
-    public void updateTwitchGames(List<TwitchGames> twitchStreams){
+    public void updateTwitchGames(List<TwitchGame> twitchStreams){
         mTwitchGames = twitchStreams;
         notifyDataSetChanged();
     }
@@ -67,16 +67,16 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.GamesViewHol
         }
 
 
-        public void bind(TwitchGames twitchGame) {
+        public void bind(TwitchGame twitchGame) {
             mGameNameTV.setText(twitchGame.name);
 
-            String thumbnail_url = TwitchUtils.buildIconURL(twitchGame.box_art_url);
+            String thumbnail_url = TwitchUtils.buildGameIconURL(twitchGame.box_art_url);
             Glide.with(mGameThumbIV.getContext()).load(thumbnail_url).into(mGameThumbIV);
         }
 
         @Override
         public void onClick(View v) {
-            TwitchGames twitchGame = mTwitchGames.get(getAdapterPosition());
+            TwitchGame twitchGame = mTwitchGames.get(getAdapterPosition());
             mGameClickListener.onGameClick(twitchGame);
         }
     }

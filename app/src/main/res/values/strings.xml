@@ -5,6 +5,7 @@
 
     <!--Nav-drawer-->
     <string name="nav_home">Home</string>
+    <string name="nav_streamers">Streamers</string>
     <string name="nav_favorites">Favorites</string>
 
     <!--Pages-->

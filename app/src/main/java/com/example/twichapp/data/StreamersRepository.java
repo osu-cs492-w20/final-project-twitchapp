@@ -1,28 +1,25 @@
-package com.example.twichapp;
+package com.example.twichapp.data;
 
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.twichapp.data.LoadTwitchTask;
-import com.example.twichapp.data.Status;
-import com.example.twichapp.data.TwitchGames;
 import com.example.twichapp.utils.TwitchUtils;
 
 import java.util.List;
 
-public class GamesRepository implements LoadTwitchTask.AsyncCallback {
-    private static final String TAG = GamesRepository.class.getSimpleName();
+public class StreamersRepository implements LoadTwitchTask.AsyncCallback {
+    private static final String TAG = StreamersRepository.class.getSimpleName();
 
-    private MutableLiveData<List<TwitchGames>> mTwitchGames;
+    private MutableLiveData<List<TwitchStream>> mTwitchStreams;
     private MutableLiveData<Status> mLoadingStatus;
 
     private String mCurrentGame;
 
-    public GamesRepository() {
-        mTwitchGames = new MutableLiveData<>();
-        mTwitchGames.setValue(null);
+    public StreamersRepository() {
+        mTwitchStreams = new MutableLiveData<>();
+        mTwitchStreams.setValue(null);
 
         mLoadingStatus = new MutableLiveData<>();
         mLoadingStatus.setValue(Status.SUCCESS);
@@ -30,11 +27,12 @@ public class GamesRepository implements LoadTwitchTask.AsyncCallback {
         mCurrentGame = null;
     }
 
-    public void loadGames() {
-        if (shouldFetchGames()) {
-            mTwitchGames.setValue(null);
+    public void loadStreams(String game) {
+        if (shouldFetchStreams(game)) {
+            mCurrentGame = game;
+            mTwitchStreams.setValue(null);
             mLoadingStatus.setValue(Status.LOADING);
-            String url = TwitchUtils.buildTwitchGamesURL();
+            String url = TwitchUtils.buildTwitchURL(game);
             Log.d(TAG, "fetching new twitch streams data with this URL: " + url);
             new LoadTwitchTask(url, this).execute();
         } else {
@@ -42,15 +40,15 @@ public class GamesRepository implements LoadTwitchTask.AsyncCallback {
         }
     }
 
-    public LiveData<List<TwitchGames>> getStreams() {
-        return mTwitchGames;
+    public LiveData<List<TwitchStream>> getStreams() {
+        return mTwitchStreams;
     }
 
     public LiveData<Status> getLoadingStatus() {
         return mLoadingStatus;
     }
 
-    private boolean shouldFetchGames() {
+    private boolean shouldFetchStreams(String game) {
         return true;
 //        if (!TextUtils.equals(game, mCurrentLocation) || !TextUtils.equals(units, mCurrentUnits)) {
 //            return true;
@@ -65,8 +63,8 @@ public class GamesRepository implements LoadTwitchTask.AsyncCallback {
     }
 
     @Override
-    public void onTwitchLoadFinished(List<TwitchGames> twitchStreams) {
-        mTwitchGames.setValue(twitchStreams);
+    public void onTwitchLoadFinished(List<TwitchStream> twitchStreams) {
+        mTwitchStreams.setValue(twitchStreams);
         if (twitchStreams != null) {
             mLoadingStatus.setValue(Status.SUCCESS);
         } else {

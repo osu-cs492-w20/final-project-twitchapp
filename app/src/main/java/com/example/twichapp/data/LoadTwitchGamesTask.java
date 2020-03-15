@@ -9,36 +9,36 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LoadTwitchTask extends AsyncTask<Void, Void, String> {
+public class LoadTwitchGamesTask extends AsyncTask<Void, Void, String> {
     public interface AsyncCallback {
-        void onTwitchLoadFinished(List<TwitchStream> forecastItems);
+        void onTwitchLoadFinished(List<TwitchGame> gamesItems);
     }
 
     private String mURL;
     private AsyncCallback mCallback;
 
-    LoadTwitchTask(String url, AsyncCallback callback) {
+    public LoadTwitchGamesTask(String url, AsyncCallback callback) {
         mURL = url;
         mCallback = callback;
     }
 
     @Override
     protected String doInBackground(Void... voids) {
-        String forecastJSON = null;
+        String gamesJSON = null;
         try {
-            forecastJSON = NetworkUtils.doHttpGet(mURL);
+            gamesJSON = NetworkUtils.doHttpGet(mURL);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return forecastJSON;
+        return gamesJSON;
     }
 
     @Override
     protected void onPostExecute(String s) {
-        ArrayList<TwitchStream> twitchStreams = null;
+        ArrayList<TwitchGame> twitchGames = null;
         if (s != null) {
-            twitchStreams = TwitchUtils.parseTwitchSearchResults(s);
+            twitchGames = TwitchUtils.parseTwitchGamesSearchResults(s);
         }
-        mCallback.onTwitchLoadFinished(twitchStreams);
+        mCallback.onTwitchLoadFinished(twitchGames);
     }
 }

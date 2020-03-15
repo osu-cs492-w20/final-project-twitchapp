@@ -3,13 +3,14 @@ package com.example.twichapp;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.twichapp.data.GamesRepository;
 import com.example.twichapp.data.Status;
-import com.example.twichapp.data.TwitchGames;
+import com.example.twichapp.data.TwitchGame;
 
 import java.util.List;
 
 public class GamesViewModel extends ViewModel {
-    private LiveData<List<TwitchGames>> mTwitchGames;
+    private LiveData<List<TwitchGame>> mTwitchGames;
     private LiveData<Status> mLoadingStatus;
 
     private GamesRepository mRepository;
@@ -24,7 +25,7 @@ public class GamesViewModel extends ViewModel {
         mRepository.loadGames();
     }
 
-    public LiveData<List<TwitchGames>> getGames() {
+    public LiveData<List<TwitchGame>> getGames() {
         return mTwitchGames;
     }
 
