@@ -1,6 +1,7 @@
 package com.example.twichapp;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -15,8 +16,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.example.twichapp.data.Status;
 import com.example.twichapp.data.TwitchStream;
 import com.example.twichapp.stream.SavedStreamViewModel;
 import com.example.twichapp.stream.StreamActivity;
@@ -30,13 +33,18 @@ public class FavoritesActivity extends AppCompatActivity implements NavigationVi
     private DrawerLayout mDrawerLayout;
 
     private SavedStreamViewModel mViewModel;
+    private ProgressBar mLoadingIndicatorPB;
+    private TextView mLoadingErrorMessageTV;
+    private boolean mUpdated;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favorites);
 
-        RecyclerView savedStreamsRV = findViewById(R.id.rv_saved_stream_items);
+        mUpdated = false;
+
+        final RecyclerView savedStreamsRV = findViewById(R.id.rv_saved_stream_items);
         savedStreamsRV.setLayoutManager(new LinearLayoutManager(this));
         savedStreamsRV.setHasFixedSize(true);
 
@@ -51,12 +59,36 @@ public class FavoritesActivity extends AppCompatActivity implements NavigationVi
         mViewModel.getAllStreams().observe(this, new Observer<List<TwitchStream>>() {
             @Override
             public void onChanged(List<TwitchStream> twitchStreams) {
+                if (!mUpdated) {
+                    mUpdated = true;
+                    mViewModel.loadFavorites(twitchStreams);
+                }
                 adapter.updateTwitchStreams(twitchStreams);
             }
         });
 
         Toolbar toolbar = findViewById(R.id.toolbar_favorites);
         setSupportActionBar(toolbar);
+
+        mLoadingIndicatorPB = findViewById(R.id.pb_loading_indicator);
+        mLoadingErrorMessageTV = findViewById(R.id.tv_loading_error_message);
+
+        mViewModel.getLoadingStatus().observe(this, new Observer<Status>() {
+            @Override
+            public void onChanged(@Nullable Status status) {
+                if (status == Status.LOADING) {
+                    mLoadingIndicatorPB.setVisibility(View.VISIBLE);
+                } else if (status == Status.SUCCESS) {
+                    mLoadingIndicatorPB.setVisibility(View.INVISIBLE);
+                    mLoadingErrorMessageTV.setVisibility(View.INVISIBLE);
+                    savedStreamsRV.setVisibility(View.VISIBLE);
+                } else {
+                    mLoadingIndicatorPB.setVisibility(View.INVISIBLE);
+                    savedStreamsRV.setVisibility(View.INVISIBLE);
+                    mLoadingErrorMessageTV.setVisibility(View.VISIBLE);
+                }
+            }
+        });
 
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
