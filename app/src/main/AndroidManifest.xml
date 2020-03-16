@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar"
         android:usesCleartextTraffic="true">
-        <activity android:name=".favorites.FavoritesActivity" />
+        <activity android:name=".FavoritesActivity" />
 
         <activity android:name=".stream.StreamActivity">
 

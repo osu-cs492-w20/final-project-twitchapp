@@ -19,7 +19,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.twichapp.favorites.FavoritesActivity;
+import com.example.twichapp.FavoritesActivity;
 import com.example.twichapp.MainActivity;
 import com.example.twichapp.R;
 import com.example.twichapp.data.Status;
@@ -152,7 +152,6 @@ public class StreamersActivity extends AppCompatActivity
         Intent streamIntent = new Intent(this, StreamActivity.class);
         Bundle bundle = new Bundle();
         bundle.putString("user_name",  twitchStream.user_name);
-        bundle.putString("user_id", twitchStream.user_id);
         streamIntent.putExtras(bundle);
         startActivity(streamIntent);
     }
