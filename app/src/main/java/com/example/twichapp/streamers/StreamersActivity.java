@@ -150,9 +150,7 @@ public class StreamersActivity extends AppCompatActivity
     @Override
     public void onStreamerClick(TwitchStream twitchStream) {
         Intent streamIntent = new Intent(this, StreamActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putString("user_name",  twitchStream.user_name);
-        streamIntent.putExtras(bundle);
+        streamIntent.putExtra(StreamActivity.EXTRA_TWITCH_STREAM, twitchStream);
         startActivity(streamIntent);
     }
 }

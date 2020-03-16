@@ -6,22 +6,53 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
+import com.example.twichapp.data.TwitchStream;
+import com.example.twichapp.stream.SavedStreamViewModel;
 import com.example.twichapp.stream.StreamActivity;
+import com.example.twichapp.streamers.StreamersAdapter;
 import com.google.android.material.navigation.NavigationView;
 
-public class FavoritesActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+import java.util.List;
+
+public class FavoritesActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, StreamersAdapter.OnStreamerClickListener {
     private DrawerLayout mDrawerLayout;
+
+    private SavedStreamViewModel mViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favorites);
+
+        RecyclerView savedStreamsRV = findViewById(R.id.rv_saved_stream_items);
+        savedStreamsRV.setLayoutManager(new LinearLayoutManager(this));
+        savedStreamsRV.setHasFixedSize(true);
+
+        final StreamersAdapter adapter = new StreamersAdapter(this);
+        savedStreamsRV.setAdapter(adapter);
+
+        mViewModel = new ViewModelProvider(
+                this,
+                new ViewModelProvider.AndroidViewModelFactory(getApplication())
+        ).get(SavedStreamViewModel.class);
+
+        mViewModel.getAllStreams().observe(this, new Observer<List<TwitchStream>>() {
+            @Override
+            public void onChanged(List<TwitchStream> twitchStreams) {
+                adapter.updateTwitchStreams(twitchStreams);
+            }
+        });
 
         Toolbar toolbar = findViewById(R.id.toolbar_favorites);
         setSupportActionBar(toolbar);
@@ -65,5 +96,12 @@ public class FavoritesActivity extends AppCompatActivity implements NavigationVi
             default:
                 return false;
         }
+    }
+
+    @Override
+    public void onStreamerClick(TwitchStream twitchStream) {
+        Intent streamIntent = new Intent(this, StreamActivity.class);
+        streamIntent.putExtra(StreamActivity.EXTRA_TWITCH_STREAM, twitchStream);
+        startActivity(streamIntent);
     }
 }

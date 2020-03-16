@@ -26,6 +26,7 @@ import android.widget.VideoView;
 import com.example.twichapp.FavoritesActivity;
 import com.example.twichapp.MainActivity;
 import com.example.twichapp.R;
+import com.example.twichapp.data.TwitchStream;
 import com.example.twichapp.streamers.StreamersActivity;
 import com.google.android.material.navigation.NavigationView;
 
@@ -36,26 +37,43 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.loader.content.Loader;
 
 public class StreamActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = MainActivity.class.getSimpleName();
+
+    public static final String EXTRA_TWITCH_STREAM = "TwitchStream";
+
     private DrawerLayout mDrawerLayout;
     private LinearLayout mlinearLayout;
     private WebView mWebView;
     private double mWidth;
     private double mHeight;
 
-    private String mUserName;
+    private SavedStreamViewModel mViewModel;
+
+    private TwitchStream mStream;
+    private boolean mIsSaved = false;
+
+    private MenuItem mFavoriteMI;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // you can use bundle to pass in the stream channel
-        Bundle bundle = getIntent().getExtras();
-        mUserName = bundle.getString("user_name");
-
         setContentView(R.layout.activity_stream);
+
+        mViewModel = new ViewModelProvider(
+                this,
+                new ViewModelProvider.AndroidViewModelFactory(getApplication())
+        ).get(SavedStreamViewModel.class);
+
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra(EXTRA_TWITCH_STREAM)) {
+            mStream = (TwitchStream)intent.getSerializableExtra(EXTRA_TWITCH_STREAM);
+        }
 
         Toolbar toolbar = findViewById(R.id.toolbar_stream);
         setSupportActionBar(toolbar);
@@ -66,7 +84,7 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
 
         // The following 3 lines change the default toolbar title to a given string
         TextView textView = toolbar.findViewById(R.id.toolbar_tv_stream);
-        textView.setText(mUserName);
+        textView.setText(mStream.user_name);
         actionBar.setDisplayShowTitleEnabled(false);
 
         mDrawerLayout = findViewById(R.id.drawer_layout_stream);
@@ -93,15 +111,30 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
                 }
             });
         }
+
+        invalidateOptionsMenu();
+
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.stream_menu, menu);
+        mFavoriteMI = (MenuItem) menu.findItem(R.id.action_favorite);
+
+        mViewModel.getStreamByName(mStream.user_name).observe(this, new Observer<TwitchStream>() {
+            @Override
+            public void onChanged(TwitchStream twitchStream) {
+                if (twitchStream != null) {
+                    mIsSaved = true;
+                    mFavoriteMI.setIcon(R.drawable.ic_action_favorite);
+                } else {
+                    mIsSaved = false;
+                    mFavoriteMI.setIcon(R.drawable.ic_action_not_favorite);
+                }
+            }
+        });
         return true;
     }
-
-
 
     private void initializePlayer() {
         // get the height of the action bar so we can account
@@ -136,7 +169,7 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
                             "new Twitch.Embed(\"twitch-embed\", { " +
                                 "width: " + mWidth + "," +
                                 "height: " + mHeight + "," +
-                                "channel: \"" + mUserName + "\"," +
+                                "channel: \"" + mStream.user_name + "\"," +
                                 "allowfullscreen: \"true\"" +
                             "}); " +
                     "</script> " +
@@ -156,6 +189,13 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
                 mDrawerLayout.openDrawer(GravityCompat.START);
                 return true;
             case R.id.action_favorite:
+                if (mStream != null) {
+                    if (!mIsSaved) {
+                        mViewModel.insertSavedStream(mStream);
+                    } else {
+                        mViewModel.deleteSavedStream(mStream);
+                    }
+                }
                 return true;
             case R.id.action_share:
                 shareStream();
@@ -166,8 +206,8 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
     }
 
     public void shareStream() {
-        if (mUserName != null) {
-            String shareText = "Check out this stream from " + mUserName + ": https://www.twitch.tv/" + mUserName;
+        if (mStream.user_name != null) {
+            String shareText = "Check out this stream from " + mStream.user_name + ": https://www.twitch.tv/" + mStream.user_name;
 
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.putExtra(Intent.EXTRA_TEXT, shareText);
