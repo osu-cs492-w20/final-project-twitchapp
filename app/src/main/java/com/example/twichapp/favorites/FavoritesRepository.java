@@ -37,7 +37,6 @@ public class FavoritesRepository implements LoadFavoritesTask.AsyncCallback {
     }
 
     public void insertFavorite(FavStreamer favStreamer) {
-        Log.d(TAG,"INSERTING: " + favStreamer.user_name);
         if (favStreamersCurr != null) {
             for (int i = 0; i < favStreamersCurr.size(); i++) {
                 if (favStreamersCurr.get(i).user_id.equals(favStreamer.user_id)) {
@@ -45,6 +44,7 @@ public class FavoritesRepository implements LoadFavoritesTask.AsyncCallback {
                 }
             }
         }
+        Log.d(TAG,"INSERTING: " + favStreamer.user_name);
         new InsertFavAsyncTask(mFavStreamerDao).execute(favStreamer);
     }
 

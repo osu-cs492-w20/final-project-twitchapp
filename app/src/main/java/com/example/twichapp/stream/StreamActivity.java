@@ -79,20 +79,6 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
                 )
         ).get(FavoritesViewModel.class);
 
-//        mFavoritesViewModel.getFavById(mUserId).observe(this,
-//                new Observer<FavStreamer>() {
-//                    @Override
-//                    public void onChanged(FavStreamer favStreamer) {
-//                        if (favStreamer != null) {
-//                            mIsFav = true;
-//                            menu.getItem(0).setIcon(R.drawable.ic_action_favorite);
-//                        } else {
-//                            mIsFav = false;
-//                            menu.getItem(0).setIcon(R.drawable.ic_action_not_favorite);
-//                        }
-//                    }
-//                });
-
         // This is because the height and width take time to lad and those
         // values are needed to build the webview so we must wait tell
         // they load and then we can initialize the stream
@@ -117,13 +103,19 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
     public boolean onCreateOptionsMenu(final Menu menu) {
         mMenu = menu;
         getMenuInflater().inflate(R.menu.stream_menu, menu);
-        if (mFavoritesViewModel.getFavById(mUserId).getValue() != null) {
-            mIsFav = true;
-            menu.getItem(0).setIcon(R.drawable.ic_action_favorite);
-        } else {
-            mIsFav = false;
-            menu.getItem(0).setIcon(R.drawable.ic_action_not_favorite);
-        }
+        mFavoritesViewModel.getFavById(mUserId).observe(this,
+                new Observer<FavStreamer>() {
+                    @Override
+                    public void onChanged(FavStreamer favStreamer) {
+                        if (favStreamer != null) {
+                            mIsFav = true;
+                            menu.getItem(0).setIcon(R.drawable.ic_action_favorite);
+                        } else {
+                            mIsFav = false;
+                            menu.getItem(0).setIcon(R.drawable.ic_action_not_favorite);
+                        }
+                    }
+                });
         return true;
     }
 
@@ -182,16 +174,16 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
                 mDrawerLayout.openDrawer(GravityCompat.START);
                 return true;
             case R.id.action_favorite:
-                mIsFav = !mIsFav;
+//                mIsFav = !mIsFav;
                 FavStreamer favStreamer = new FavStreamer();
                 favStreamer.user_id = mUserId;
                 favStreamer.user_name = mUserName;
                 if (mIsFav) {
                     mFavoritesViewModel.insertFavorite(favStreamer);
-                    item.setIcon(R.drawable.ic_action_favorite);
-                } else { ;
+//                    item.setIcon(R.drawable.ic_action_favorite);
+                } else {
                     mFavoritesViewModel.deleteFavorite(favStreamer);
-                    item.setIcon(R.drawable.ic_action_not_favorite);
+//                    item.setIcon(R.drawable.ic_action_not_favorite);
                 }
                 return true;
             case R.id.action_share:
