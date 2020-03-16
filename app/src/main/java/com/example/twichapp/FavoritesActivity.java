@@ -20,6 +20,7 @@ import android.widget.TextView;
 import com.example.twichapp.data.TwitchStream;
 import com.example.twichapp.stream.SavedStreamViewModel;
 import com.example.twichapp.stream.StreamActivity;
+import com.example.twichapp.streamers.StreamersActivity;
 import com.example.twichapp.streamers.StreamersAdapter;
 import com.google.android.material.navigation.NavigationView;
 
@@ -90,6 +91,10 @@ public class FavoritesActivity extends AppCompatActivity implements NavigationVi
             case R.id.nav_home:
                 Intent homeIntent = new Intent(this, MainActivity.class);
                 startActivity(homeIntent);
+                return true;
+            case R.id.nav_streamers:
+                Intent streamersIntent = new Intent(this, StreamersActivity.class);
+                startActivity(streamersIntent);
                 return true;
             case R.id.nav_favorites:
                 return true;

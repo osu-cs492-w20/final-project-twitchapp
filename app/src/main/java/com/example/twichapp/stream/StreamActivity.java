@@ -223,6 +223,10 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
         mDrawerLayout.closeDrawers();
         switch (item.getItemId()) {
             case R.id.nav_home:
+                Intent homeIntent = new Intent(this, MainActivity.class);
+                startActivity(homeIntent);
+                return true;
+            case R.id.nav_streamers:
                 Intent streamersIntent = new Intent(this, StreamersActivity.class);
                 startActivity(streamersIntent);
                 return true;
