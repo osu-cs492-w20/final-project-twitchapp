@@ -1,31 +1,21 @@
 package com.example.twichapp.stream;
 
 import android.content.Intent;
-import android.graphics.Point;
-import android.graphics.Rect;
-import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
-import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewTreeObserver;
-import android.view.Window;
-import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
-import android.widget.MediaController;
 import android.widget.TextView;
-import android.widget.VideoView;
 
-import com.example.twichapp.FavoritesActivity;
+import com.example.twichapp.data.FavStreamer;
+import com.example.twichapp.favorites.FavoritesActivity;
 import com.example.twichapp.MainActivity;
 import com.example.twichapp.R;
+import com.example.twichapp.favorites.FavoritesViewModel;
 import com.example.twichapp.streamers.StreamersActivity;
 import com.google.android.material.navigation.NavigationView;
 
@@ -36,6 +26,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 public class StreamActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -46,6 +38,11 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
     private double mHeight;
 
     private String mUserName;
+    private String mUserId;
+
+    private boolean mIsFav;
+    private FavoritesViewModel mFavoritesViewModel;
+    private Menu mMenu;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,6 +51,7 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
         // you can use bundle to pass in the stream channel
         Bundle bundle = getIntent().getExtras();
         mUserName = bundle.getString("user_name");
+        mUserId = bundle.getString("user_id");
 
         setContentView(R.layout.activity_stream);
 
@@ -74,6 +72,26 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
         NavigationView navigationView = findViewById(R.id.nv_nav_drawer_stream);
         navigationView.setNavigationItemSelectedListener(this);
 
+        mFavoritesViewModel = new ViewModelProvider(
+                this,
+                new ViewModelProvider.AndroidViewModelFactory(
+                        getApplication()
+                )
+        ).get(FavoritesViewModel.class);
+
+//        mFavoritesViewModel.getFavById(mUserId).observe(this,
+//                new Observer<FavStreamer>() {
+//                    @Override
+//                    public void onChanged(FavStreamer favStreamer) {
+//                        if (favStreamer != null) {
+//                            mIsFav = true;
+//                            menu.getItem(0).setIcon(R.drawable.ic_action_favorite);
+//                        } else {
+//                            mIsFav = false;
+//                            menu.getItem(0).setIcon(R.drawable.ic_action_not_favorite);
+//                        }
+//                    }
+//                });
 
         // This is because the height and width take time to lad and those
         // values are needed to build the webview so we must wait tell
@@ -96,8 +114,16 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(final Menu menu) {
+        mMenu = menu;
         getMenuInflater().inflate(R.menu.stream_menu, menu);
+        if (mFavoritesViewModel.getFavById(mUserId).getValue() != null) {
+            mIsFav = true;
+            menu.getItem(0).setIcon(R.drawable.ic_action_favorite);
+        } else {
+            mIsFav = false;
+            menu.getItem(0).setIcon(R.drawable.ic_action_not_favorite);
+        }
         return true;
     }
 
@@ -156,6 +182,17 @@ public class StreamActivity extends AppCompatActivity implements NavigationView.
                 mDrawerLayout.openDrawer(GravityCompat.START);
                 return true;
             case R.id.action_favorite:
+                mIsFav = !mIsFav;
+                FavStreamer favStreamer = new FavStreamer();
+                favStreamer.user_id = mUserId;
+                favStreamer.user_name = mUserName;
+                if (mIsFav) {
+                    mFavoritesViewModel.insertFavorite(favStreamer);
+                    item.setIcon(R.drawable.ic_action_favorite);
+                } else { ;
+                    mFavoritesViewModel.deleteFavorite(favStreamer);
+                    item.setIcon(R.drawable.ic_action_not_favorite);
+                }
                 return true;
             case R.id.action_share:
                 shareStream();

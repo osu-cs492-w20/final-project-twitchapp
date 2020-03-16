@@ -1,6 +1,7 @@
-package com.example.twichapp;
+package com.example.twichapp.favorites;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -18,30 +19,35 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.twichapp.favorites.FavoritesActivity;
+import com.example.twichapp.MainActivity;
+import com.example.twichapp.R;
+import com.example.twichapp.data.FavStreamer;
 import com.example.twichapp.data.Status;
-import com.example.twichapp.data.TwitchGame;
+import com.example.twichapp.data.TwitchStream;
 import com.example.twichapp.streamers.StreamersActivity;
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, GamesAdapter.OnGameClickListener {
+public class FavoritesActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener, FavoritesAdapter.OnFavoriteClickListener {
+    private static final String TAG = FavoritesActivity.class.getSimpleName();
+
     private DrawerLayout mDrawerLayout;
-    private RecyclerView mGamesRV;
+
+    private RecyclerView mFavoritesRV;
     private ProgressBar mLoadingIndicatorPB;
     private TextView mLoadingErrorMessageTV;
 
-    private GamesAdapter mGamesAdapter;
-    private GamesViewModel mGamesViewModel;
+    private FavoritesAdapter mFavoritesAdapter;
+    private FavoritesViewModel mFavoritesViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_favorites);
 
-        Toolbar toolbar = findViewById(R.id.toolbar_main);
+        Toolbar toolbar = findViewById(R.id.toolbar_favorites);
         setSupportActionBar(toolbar);
 
         ActionBar actionBar = getSupportActionBar();
@@ -49,54 +55,57 @@ public class MainActivity extends AppCompatActivity
         actionBar.setHomeAsUpIndicator(R.drawable.ic_nav_menu);
 
         // The following 3 lines change the default toolbar title to a given string
-        TextView textView = toolbar.findViewById(R.id.toolbar_tv_main);
-        textView.setText(getString(R.string.page_main));
+        TextView textView = toolbar.findViewById(R.id.toolbar_tv_favorites);
+        textView.setText(getString(R.string.page_favorites));
         actionBar.setDisplayShowTitleEnabled(false);
 
         mLoadingIndicatorPB = findViewById(R.id.pb_loading_indicator);
         mLoadingErrorMessageTV = findViewById(R.id.tv_loading_error_message);
-        mGamesRV = findViewById(R.id.rv_twitch_game_items);
+        mFavoritesRV = findViewById(R.id.rv_favorites);
 
-        mGamesAdapter = new GamesAdapter(this);
-        mGamesRV.setAdapter(mGamesAdapter);
-        mGamesRV.setLayoutManager(new LinearLayoutManager(this));
-        mGamesRV.setHasFixedSize(true);
+        mFavoritesAdapter = new FavoritesAdapter(this);
+        mFavoritesRV.setAdapter(mFavoritesAdapter);
+        mFavoritesRV.setLayoutManager(new LinearLayoutManager(this));
+        mFavoritesRV.setHasFixedSize(true);
 
-        mDrawerLayout = findViewById(R.id.drawer_layout_main);
+        mDrawerLayout = findViewById(R.id.drawer_layout_favorites);
 
-        mGamesViewModel = new ViewModelProvider(this).get(GamesViewModel.class);
+        NavigationView navigationView = findViewById(R.id.nv_nav_drawer_favorites);
+        navigationView.setNavigationItemSelectedListener(this);
 
-        mGamesViewModel.getGames().observe(this, new Observer<List<TwitchGame>>() {
+        mFavoritesViewModel = new ViewModelProvider(
+                this,
+                new ViewModelProvider.AndroidViewModelFactory(
+                        getApplication()
+                )
+        ).get(FavoritesViewModel.class);
+
+        mFavoritesViewModel.getLoadingStatus().observe(this, new Observer<Status>() {
             @Override
-            public void onChanged(List<TwitchGame> twitchGames) {
-                mGamesAdapter.updateTwitchGames(twitchGames);
-                if (twitchGames != null) {
-                    mGamesAdapter.updateTwitchGames(twitchGames);
-                }
-            }
-        });
-
-        mGamesViewModel.getLoadingStatus().observe(this, new Observer<Status>() {
-            @Override
-            public void onChanged(Status status) {
+            public void onChanged(@Nullable Status status) {
                 if (status == Status.LOADING) {
                     mLoadingIndicatorPB.setVisibility(View.VISIBLE);
                 } else if (status == Status.SUCCESS) {
                     mLoadingIndicatorPB.setVisibility(View.INVISIBLE);
                     mLoadingErrorMessageTV.setVisibility(View.INVISIBLE);
-                    mGamesRV.setVisibility(View.VISIBLE);
+                    mFavoritesRV.setVisibility(View.VISIBLE);
                 } else {
                     mLoadingIndicatorPB.setVisibility(View.INVISIBLE);
-                    mGamesRV.setVisibility(View.INVISIBLE);
+                    mFavoritesRV.setVisibility(View.INVISIBLE);
                     mLoadingErrorMessageTV.setVisibility(View.VISIBLE);
                 }
             }
         });
 
-        NavigationView navigationView = findViewById(R.id.nv_nav_drawer_main);
-        navigationView.setNavigationItemSelectedListener(this);
+        mFavoritesViewModel.getAllFavStreams().observe(this,
+                new Observer<List<TwitchStream>>() {
+                    @Override
+                    public void onChanged(List<TwitchStream> twitchStreams) {
+                        mFavoritesAdapter.updateFavorites(twitchStreams);
+                    }
+                });
 
-        mGamesViewModel.loadGames();
+        mFavoritesViewModel.loadFavorites(mFavoritesViewModel.getAllFavorites().getValue());
     }
 
     @Override
@@ -115,14 +124,14 @@ public class MainActivity extends AppCompatActivity
         mDrawerLayout.closeDrawers();
         switch (item.getItemId()) {
             case R.id.nav_home:
+                Intent homeIntent = new Intent(this, MainActivity.class);
+                startActivity(homeIntent);
                 return true;
             case R.id.nav_streamers:
                 Intent streamersIntent = new Intent(this, StreamersActivity.class);
                 startActivity(streamersIntent);
                 return true;
             case R.id.nav_favorites:
-                Intent favoritesIntent = new Intent(this, FavoritesActivity.class);
-                startActivity(favoritesIntent);
                 return true;
             default:
                 return false;
@@ -130,9 +139,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onGameClick(TwitchGame twitchGame){
-        Intent intent = new Intent(this, StreamersActivity.class);
-        intent.putExtra(StreamersActivity.EXTRA_GAME, twitchGame);
-        startActivity(intent);
+    public void onFavoriteClick(TwitchStream twitchStream) {
+
     }
 }
