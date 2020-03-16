@@ -87,8 +87,12 @@ public class StreamersAdapter extends RecyclerView.Adapter<StreamersAdapter.Stre
             }, 3000);
             mStreamerViewersTV.setText(Integer.toString(twitchStream.viewer_count));
 
-            String thumbnail_url = TwitchUtils.buildIconURL(twitchStream.thumbnail_url);
-            Glide.with(mStreamerThumbIV.getContext()).load(thumbnail_url).into(mStreamerThumbIV);
+            if (twitchStream.thumbnail_url != null) {
+                String thumbnail_url = TwitchUtils.buildIconURL(twitchStream.thumbnail_url);
+                Glide.with(mStreamerThumbIV.getContext()).load(thumbnail_url).into(mStreamerThumbIV);
+            } else {
+                mStreamerThumbIV.setImageResource(R.drawable.ic_videocam_off_black_24dp);
+            }
         }
 
         @Override

@@ -7,12 +7,14 @@ import com.example.twichapp.data.TwitchStream;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class TwitchUtils {
 
     private final static String TWITCH_TOP_GAMES_URL = "https://api.twitch.tv/helix/games/top?first=100";
     private final static String TWITCH_SEARCH_BASE_URL = "https://api.twitch.tv/helix/streams";
     private final static String TWITCH_GAME_QUERY_PARAM = "game_id";
+    private final static String TWITCH_USER_QUERY_PARAM = "user_id";
 
     private static final Gson gson = new Gson();
 
@@ -46,6 +48,16 @@ public class TwitchUtils {
 
         if (!game.equals("")) {
             builder.appendQueryParameter(TWITCH_GAME_QUERY_PARAM, game);
+        }
+
+        return builder.build().toString();
+    }
+
+    public static String buildTwitchFavoritesURL(List<TwitchStream> streams) {
+        Uri.Builder builder = Uri.parse(TWITCH_SEARCH_BASE_URL).buildUpon();
+
+        for (int i = 0; i < streams.size(); i++) {
+            builder.appendQueryParameter(TWITCH_USER_QUERY_PARAM,streams.get(i).user_id);
         }
 
         return builder.build().toString();

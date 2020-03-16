@@ -12,6 +12,7 @@ public class TwitchStream implements Serializable {
     @NonNull
     public String user_name;
 
+    public String user_id;
     public String game_id;
     public String title;
     public int viewer_count;
